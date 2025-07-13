@@ -1,4 +1,3 @@
-````yaml
 Lead Generation Automation - AI-Powered Scraper for Targeted Outreach
 🚀 Project Logo (Optional)
 
@@ -155,8 +154,3 @@ This project is under the MIT License — see the `LICENSE` file for full detail
 * Reach out to the developer [@Samarcodesinpython](https://github.com/Samarcodesinpython)
 
 🎯 Project Status: 🚧 Actively Developed
-
-```
-
-Let me know if you want a shorter version for your GitHub or a more fancy one with shields/badges/stats!
-```
