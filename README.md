@@ -1,4 +1,4 @@
-##Lead Generation Automation - AI-Powered Scraper for Targeted Outreach##
+**Lead Generation Automation - AI-Powered Scraper for Targeted Outreach**
 
 Python | Google Sheets | Serper API | Email Scraping
 
