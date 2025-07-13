@@ -1,0 +1,1847 @@
+{
+  "name": "Final Boss of lead Generation",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "fc8a2154-1dba-482f-95e5-d7c2682e5349",
+      "name": "Starts scraper workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -1800,
+        -2380
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {},
+      "id": "860f0757-fb78-4f30-b5bf-0793446ac1bc",
+      "name": "Remove Duplicate URLs2",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        -1220,
+        -1680
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "requestMethod": "POST",
+        "url": "https://google.serper.dev/search",
+        "options": {
+          "splitIntoItems": true
+        },
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "q",
+              "value": "={{ $json.query }}"
+            }
+          ]
+        },
+        "headerParametersUi": {
+          "parameter": [
+            {
+              "name": "X-API-KEY",
+              "value": "Enter your api"
+            }
+          ]
+        }
+      },
+      "id": "9e8800b8-1b6e-4736-b457-e844fa19b031",
+      "name": "Serper Google Search1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        -1880,
+        -1680
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst results = $json.organic || [];\n\nreturn results.map(result => ({\n  json: {\n    url: result.link,\n    title: result.title,\n    snippet: result.snippet\n  }\n}));\n"
+      },
+      "id": "8bf514cb-ff31-4c9f-8d64-ac51dbf88610",
+      "name": "Scrape URLs from results2",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1660,
+        -1680
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "041797f2-2fe2-41dc-902a-d34050b9b304",
+              "operator": {
+                "type": "string",
+                "operation": "notRegex"
+              },
+              "leftValue": "={{ $json.url }}",
+              "rightValue": "=(google|gstatic|ggpht|schema\\.org|example\\.com|sentry-next\\.wixpress\\.com|imli\\.com|sentry\\.wixpress\\.com|ingest\\.sentry\\.io)"
+            },
+            {
+              "id": "eb499a7e-17bc-453c-be08-a47286f726dd",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "",
+              "rightValue": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4cb85807-9e84-41a7-a3d2-995fb07b6155",
+      "name": "Filter irrelevant URLs2",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        -1440,
+        -1680
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "id": "d55fff53-ced6-45bf-adbb-fba8ff85255b",
+      "name": "Request web page for URL2",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1000,
+        -1680
+      ],
+      "typeVersion": 4.2,
+      "alwaysOutputData": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "email",
+        "options": {}
+      },
+      "id": "dfb39240-71ce-4c43-8715-d162593d3d69",
+      "name": "Split out into default data structure2",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -340,
+        -1880
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "email",
+        "options": {}
+      },
+      "id": "57628315-729f-4614-93d8-ff19cd3e665e",
+      "name": "Remove duplicate emails2",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        -120,
+        -1880
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "041797f2-2fe2-41dc-902a-d34050b9b304",
+              "operator": {
+                "type": "string",
+                "operation": "notRegex"
+              },
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "=(google|gstatic|ggpht|schema\\.org|example\\.com|sentry\\.wixpress\\.com|sentry-next\\.wixpress\\.com|ingest\\.sentry\\.io|sentry\\.io|imli\\.com)"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "69d6eb5a-e1b1-402a-80e6-f1d23b252387",
+      "name": "Filter irrelevant emails2",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        100,
+        -1880
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "16LhHyo8PFH9f2RQl4tmmZhrQzo2L2AH5GWWFbRpH69c",
+          "mode": "list",
+          "cachedResultName": "Leads 2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16LhHyo8PFH9f2RQl4tmmZhrQzo2L2AH5GWWFbRpH69c/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16LhHyo8PFH9f2RQl4tmmZhrQzo2L2AH5GWWFbRpH69c/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {
+            "Email": "={{ $json.email }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Channel Name",
+              "displayName": "Channel Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Content Type",
+              "displayName": "Content Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "0ea22342-8229-47e8-b515-824317291974",
+      "name": "Save emails to Google Sheet2",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        320,
+        -1880
+      ],
+      "typeVersion": 4.5,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "hWFAIDoOfp62FkpN",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "email"
+            }
+          ]
+        },
+        "options": {
+          "mergeLists": true
+        }
+      },
+      "id": "a3ecf91c-c3da-468a-b4e4-5e7386f2ea38",
+      "name": "Aggregate arrays of emails3",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        -560,
+        -1880
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "31cf4939-ca86-4811-8034-c9864b706f51",
+      "name": "Split In Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -2100,
+        -1680
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare output array\nconst output = [];\n\nfor (const item of items) {\n  const data = item.json.data || '';\n  const url = item.json.url || '';\n\n  // Extract emails\n  const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.(?!png|jpg|gif|jpeg)[a-zA-Z]{2,}/g;\n  const emails = data.match(emailRegex) || [];\n\n  // Extract channel name\n  const titleMatch = data.match(/<title[^>]*>(.*?)<\\/title>/i);\n  const h1Match = data.match(/<h1[^>]*>(.*?)<\\/h1>/i);\n  const channelName = titleMatch?.[1]?.trim() || h1Match?.[1]?.trim() || 'Unknown';\n\n  // Infer content type\n  const lowerData = data.toLowerCase();\n  let contentType = 'unknown';\n  if (lowerData.includes('podcast')) contentType = 'podcast';\n  else if (lowerData.includes('vlog')) contentType = 'vlog';\n  else if (lowerData.includes('tutorial')) contentType = 'tutorial';\n  else if (lowerData.includes('stream')) contentType = 'stream';\n  else if (lowerData.includes('interview')) contentType = 'interview';\n  else if (lowerData.includes('course')) contentType = 'course';\n  else if (lowerData.includes('review')) contentType = 'review';\n\n  // Output each email as a separate item\n  for (const email of emails) {\n    output.push({\n      json: {\n        email,\n        channelName,\n        contentType,\n      }\n    });\n  }\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -780,
+        -1680
+      ],
+      "id": "df1d1e20-5a11-43bd-8d37-e21b4b47216a",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "channelName",
+        "options": {}
+      },
+      "id": "d842bdb2-01f1-430c-bcde-45f468e68226",
+      "name": "Remove duplicate emails",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        -120,
+        -1680
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "contentType",
+        "options": {}
+      },
+      "id": "6d4faf69-bae0-4f62-9486-e1845cf3a091",
+      "name": "Remove duplicate emails3",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        -120,
+        -1480
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "contentType",
+        "options": {}
+      },
+      "id": "da548a51-fb91-4213-a2f3-8e233874b00f",
+      "name": "Split out into default data structure",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -340,
+        -1480
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "041797f2-2fe2-41dc-902a-d34050b9b304",
+              "operator": {
+                "type": "string",
+                "operation": "notRegex"
+              },
+              "leftValue": "={{ $json.contentType }}",
+              "rightValue": "=(google|gstatic|ggpht|schema\\.org|example\\.com|sentry\\.wixpress\\.com|sentry-next\\.wixpress\\.com|ingest\\.sentry\\.io|sentry\\.io|imli\\.com)"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "82f88706-eb26-46a3-ae59-7cc171c68686",
+      "name": "Filter irrelevant emails",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        100,
+        -1480
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "contentType"
+            }
+          ]
+        },
+        "options": {
+          "mergeLists": true
+        }
+      },
+      "id": "98d2d1d4-a120-49bd-b600-57ae2c3a7d8c",
+      "name": "Aggregate arrays of emails",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        -560,
+        -1480
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "channelName",
+        "options": {}
+      },
+      "id": "f1176fea-919c-436f-affa-fa0e3d95b2e1",
+      "name": "Split out into default data structure1",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -340,
+        -1680
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "041797f2-2fe2-41dc-902a-d34050b9b304",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.channelName }}",
+              "rightValue": "=(google|gstatic|ggpht|schema\\.org|example\\.com|sentry\\.wixpress\\.com|sentry-next\\.wixpress\\.com|ingest\\.sentry\\.io|sentry\\.io|imli\\.com)"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "1105422c-ee27-4b54-af3a-ee5d68fdef59",
+      "name": "Filter irrelevant emails1",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        100,
+        -1680
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "channelName"
+            }
+          ]
+        },
+        "options": {
+          "mergeLists": true
+        }
+      },
+      "id": "dfee42c4-2dd3-4097-a813-94954ddf6688",
+      "name": "Aggregate arrays of emails1",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        -560,
+        -1680
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "16LhHyo8PFH9f2RQl4tmmZhrQzo2L2AH5GWWFbRpH69c",
+          "mode": "list",
+          "cachedResultName": "Leads 2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16LhHyo8PFH9f2RQl4tmmZhrQzo2L2AH5GWWFbRpH69c/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16LhHyo8PFH9f2RQl4tmmZhrQzo2L2AH5GWWFbRpH69c/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "Channel Name"
+          ],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Channel Name",
+              "displayName": "Channel Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Content Type",
+              "displayName": "Content Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "9a928992-e13a-4d1c-b743-b47251a18c22",
+      "name": "Save emails to Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        320,
+        -1680
+      ],
+      "typeVersion": 4.5,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "hWFAIDoOfp62FkpN",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "16LhHyo8PFH9f2RQl4tmmZhrQzo2L2AH5GWWFbRpH69c",
+          "mode": "list",
+          "cachedResultName": "Leads 2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16LhHyo8PFH9f2RQl4tmmZhrQzo2L2AH5GWWFbRpH69c/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16LhHyo8PFH9f2RQl4tmmZhrQzo2L2AH5GWWFbRpH69c/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {
+            "Content Type": "={{ $json.contentType }}"
+          },
+          "matchingColumns": [
+            "Content Type"
+          ],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Channel Name",
+              "displayName": "Channel Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Content Type",
+              "displayName": "Content Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "65667022-b450-4568-8afe-71ef9bec73fb",
+      "name": "Save emails to Google Sheet3",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        320,
+        -1480
+      ],
+      "typeVersion": 4.5,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "hWFAIDoOfp62FkpN",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const data = $json.data\n\nconst emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.(?!png|jpg|gif|jpeg)[a-zA-Z]{2,}/g\n\nconst emails = data.match(emailRegex)\n\nreturn {json: {emails: emails}}"
+      },
+      "id": "463a793e-995c-4db8-a25c-f3605346a097",
+      "name": "Scrape emails from page2",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1360,
+        -2240
+      ],
+      "typeVersion": 2,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "id": "17eed9f7-0d28-4cdb-9d1b-52e429552ab5",
+      "name": "Remove Duplicate URLs",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        -420,
+        -2760
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "requestMethod": "POST",
+        "url": "https://google.serper.dev/search",
+        "options": {
+          "splitIntoItems": true
+        },
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "q",
+              "value": "={{ $json.query }}"
+            }
+          ]
+        },
+        "headerParametersUi": {
+          "parameter": [
+            {
+              "name": "X-API-KEY",
+              "value": "Enter your api"
+            }
+          ]
+        }
+      },
+      "id": "846a4959-a2ba-4db3-89aa-046881af2f04",
+      "name": "Serper Google Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        -1080,
+        -2760
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst results = $json.organic || [];\n\nreturn results.map(result => ({\n  json: {\n    url: result.link,\n    title: result.title,\n    snippet: result.snippet\n  }\n}));\n"
+      },
+      "id": "ef2d33d2-8571-44cf-b8e8-3207267efa87",
+      "name": "Scrape URLs from results",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -860,
+        -2760
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "041797f2-2fe2-41dc-902a-d34050b9b304",
+              "operator": {
+                "type": "string",
+                "operation": "notRegex"
+              },
+              "leftValue": "={{ $json.url }}",
+              "rightValue": "=(google|gstatic|ggpht|schema\\.org|example\\.com|sentry-next\\.wixpress\\.com|imli\\.com|sentry\\.wixpress\\.com|ingest\\.sentry\\.io)"
+            },
+            {
+              "id": "eb499a7e-17bc-453c-be08-a47286f726dd",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "",
+              "rightValue": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "02a66a5c-42e7-4d34-9543-1f6c40818c5a",
+      "name": "Filter irrelevant URLs",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        -640,
+        -2760
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "id": "4c17d12b-ee6a-4146-aff7-5043d8e05ec0",
+      "name": "Request web page for URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -200,
+        -2760
+      ],
+      "typeVersion": 4.2,
+      "alwaysOutputData": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "emails",
+        "options": {}
+      },
+      "id": "ccdaa8c6-e94b-4960-bce2-1d17c1ef84d0",
+      "name": "Split out into default data structure3",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -920,
+        -2240
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "emails",
+        "options": {}
+      },
+      "id": "896d9fca-2ec8-49df-87f2-0a89fe268a00",
+      "name": "Remove duplicate emails4",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        -700,
+        -2240
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "041797f2-2fe2-41dc-902a-d34050b9b304",
+              "operator": {
+                "type": "string",
+                "operation": "notRegex"
+              },
+              "leftValue": "={{ $json.emails }}",
+              "rightValue": "=(google|gstatic|ggpht|schema\\.org|example\\.com|sentry\\.wixpress\\.com|sentry-next\\.wixpress\\.com|ingest\\.sentry\\.io|sentry\\.io|imli\\.com)"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "92811759-f1a6-4719-a2db-53bc162de7b4",
+      "name": "Filter irrelevant emails3",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        -480,
+        -2240
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1-u86ojB4HC4vtM1GqbvKTh4E1w4mD3esZfItMzXPsYc",
+          "mode": "list",
+          "cachedResultName": "Leads Generated",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-u86ojB4HC4vtM1GqbvKTh4E1w4mD3esZfItMzXPsYc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MDMbYUDqNWtNqZIaGO1YR2ojX3Vqfuo-ZXlt9XwpQps/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.emails }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "b7d5bb30-b7ba-4fa9-95ad-a0c643004deb",
+      "name": "Save emails to Google Sheet4",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -260,
+        -2240
+      ],
+      "typeVersion": 4.5,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "hWFAIDoOfp62FkpN",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "emails"
+            }
+          ]
+        },
+        "options": {
+          "mergeLists": true
+        }
+      },
+      "id": "076828d6-c9a3-4fef-8de7-7b6f75553660",
+      "name": "Aggregate arrays of emails4",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        -1140,
+        -2240
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "f0c2cb04-e81b-45db-9470-1a31a1cee585",
+      "name": "Split In Batches1",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -1300,
+        -2760
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Scrape Leads from Websites and Saves them into a google sheet",
+        "height": 400,
+        "width": 1580,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1480,
+        -2400
+      ],
+      "typeVersion": 1,
+      "id": "10021312-7b2d-44b5-959c-75581f0eaf23",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Generate Leads using Serper's API",
+        "height": 340,
+        "width": 1580,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1480,
+        -2860
+      ],
+      "typeVersion": 1,
+      "id": "1c7b2ffd-4327-4565-bb2e-b60b801b6f53",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {
+    "Starts scraper workflow": [
+      {
+        "json": {
+          "query": "site:youtube.com OR site:spotify.com OR site:soundcloud.com OR site:podcasts.apple.com OR site:vimeo.com (\"long form podcast\" OR \"hour long video\" OR \"full interview episode\" OR \"weekly vlog\" OR \"stream full match\" OR \"motivational speech\" OR \"tech review\" OR \"sit down interview\" OR \"talk show\" OR \"education video\" OR \"tutorial over 1 hour\" OR \"lecture recording\" OR \"course module\" OR \"deep dive video\" OR \"webinar recording\")"
+        }
+      },
+      {
+        "json": {
+          "query": "long+form+interview+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "video+podcast+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "full+episode+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "gameplay+highlight+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "deep+dive+review+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "long+reaction+video+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "tech+explainer+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "hour+long+vlog+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "stream+highlight+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "motivational+talk+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "career+advice+video+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "live+stream+recording+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "interview+with+expert+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "conference+talk+video+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "health+podcast+site:spotify.com"
+        }
+      },
+      {
+        "json": {
+          "query": "comedy+podcast+site:spotify.com"
+        }
+      },
+      {
+        "json": {
+          "query": "business+podcast+site:spotify.com"
+        }
+      },
+      {
+        "json": {
+          "query": "marketing+podcast+site:spotify.com"
+        }
+      },
+      {
+        "json": {
+          "query": "startup+interview+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "hour+long+discussion+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "college+lecture+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "financial+education+video+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "design+course+video+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "hour+long+webinar+site:vimeo.com"
+        }
+      },
+      {
+        "json": {
+          "query": "industry+panel+discussion+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "hour+long+talk+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "AI+explained+video+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "creator+interview+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "deep+dive+interview+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "spiritual+podcast+site:spotify.com"
+        }
+      },
+      {
+        "json": {
+          "query": "gaming+stream+highlight+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "developer+talk+video+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "documentary+series+episode+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "thought+leader+interview+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "reaction+video+over+40+minutes+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "AI+course+full+length+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "freelancer+discussion+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "long+review+video+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "video+essay+over+30+minutes+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "solo+podcast+hour+long+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "creator+talk+podcast+site:spotify.com"
+        }
+      },
+      {
+        "json": {
+          "query": "hour+long+stream+recap+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "fitness+training+video+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "coaching+session+recording+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "mental+health+discussion+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "philosophy+talk+long+form+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "masterclass+session+video+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "full+episode+podcast+site:soundcloud.com"
+        }
+      },
+      {
+        "json": {
+          "query": "educational+talk+hour+long+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "spiritual+talks+over+1+hour+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "self+development+podcast+site:spotify.com"
+        }
+      },
+      {
+        "json": {
+          "query": "developer+interview+series+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "filmmaker+interview+long+form+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "influencer+interview+hour+long+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "content+strategy+talk+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "hour+long+debate+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "marketing+deep+dive+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "career+journey+interview+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "wellness+podcast+hour+long+site:spotify.com"
+        }
+      },
+      {
+        "json": {
+          "query": "real+estate+expert+interview+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "productivity+long+form+video+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "investor+chat+series+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "growth+hacks+podcast+site:spotify.com"
+        }
+      },
+      {
+        "json": {
+          "query": "behind+the+scenes+docuseries+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "motivational+full+video+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "ux+design+lecture+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "product+design+panel+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "comedy+panel+hour+long+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "learning+analytics+talk+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "full+podcast+video+site:podcasts.apple.com"
+        }
+      },
+      {
+        "json": {
+          "query": "complete+stream+highlight+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "hour+long+game+review+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "gaming+discussion+podcast+site:spotify.com"
+        }
+      },
+      {
+        "json": {
+          "query": "live+debate+hour+long+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "spirituality+talk+full+video+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "long+tech+demo+video+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "architecture+masterclass+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "conference+recording+hour+long+site:vimeo.com"
+        }
+      },
+      {
+        "json": {
+          "query": "full+workshop+recording+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "branding+masterclass+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "product+review+over+45+minutes+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "UX+strategy+deep+dive+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "writing+course+full+lesson+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "course+module+deep+dive+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "advanced+AI+training+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "long+form+webinar+on+vimeo+site:vimeo.com"
+        }
+      },
+      {
+        "json": {
+          "query": "full+length+video+essay+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "history+lecture+hour+long+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "psychology+deep+talk+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "business+strategy+talk+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "machine+learning+full+course+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "founder+interview+series+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "long+book+review+video+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "biography+interview+video+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "product+launch+panel+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "company+founder+interview+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "startup+funding+talk+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "investor+roundtable+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "leadership+talk+video+site:youtube.com"
+        }
+      },
+      {
+        "json": {
+          "query": "visionary+speaker+session+site:youtube.com"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Starts scraper workflow": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicate URLs2": {
+      "main": [
+        [
+          {
+            "node": "Request web page for URL2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape URLs from results2": {
+      "main": [
+        [
+          {
+            "node": "Filter irrelevant URLs2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter irrelevant URLs2": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicate URLs2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request web page for URL2": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split out into default data structure2": {
+      "main": [
+        [
+          {
+            "node": "Remove duplicate emails2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove duplicate emails2": {
+      "main": [
+        [
+          {
+            "node": "Filter irrelevant emails2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter irrelevant emails2": {
+      "main": [
+        [
+          {
+            "node": "Save emails to Google Sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Serper Google Search1": {
+      "main": [
+        [
+          {
+            "node": "Scrape URLs from results2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate arrays of emails3": {
+      "main": [
+        [
+          {
+            "node": "Split out into default data structure2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save emails to Google Sheet2": {
+      "main": [
+        []
+      ]
+    },
+    "Split In Batches": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Serper Google Search1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Aggregate arrays of emails3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Aggregate arrays of emails1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Aggregate arrays of emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove duplicate emails": {
+      "main": [
+        [
+          {
+            "node": "Filter irrelevant emails1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove duplicate emails3": {
+      "main": [
+        [
+          {
+            "node": "Filter irrelevant emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split out into default data structure": {
+      "main": [
+        [
+          {
+            "node": "Remove duplicate emails3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate arrays of emails": {
+      "main": [
+        [
+          {
+            "node": "Split out into default data structure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split out into default data structure1": {
+      "main": [
+        [
+          {
+            "node": "Remove duplicate emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate arrays of emails1": {
+      "main": [
+        [
+          {
+            "node": "Split out into default data structure1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter irrelevant emails1": {
+      "main": [
+        [
+          {
+            "node": "Save emails to Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter irrelevant emails": {
+      "main": [
+        [
+          {
+            "node": "Save emails to Google Sheet3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape emails from page2": {
+      "main": [
+        [
+          {
+            "node": "Aggregate arrays of emails4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicate URLs": {
+      "main": [
+        [
+          {
+            "node": "Request web page for URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Serper Google Search": {
+      "main": [
+        [
+          {
+            "node": "Scrape URLs from results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape URLs from results": {
+      "main": [
+        [
+          {
+            "node": "Filter irrelevant URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter irrelevant URLs": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicate URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request web page for URL": {
+      "main": [
+        [
+          {
+            "node": "Scrape emails from page2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split out into default data structure3": {
+      "main": [
+        [
+          {
+            "node": "Remove duplicate emails4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove duplicate emails4": {
+      "main": [
+        [
+          {
+            "node": "Filter irrelevant emails3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter irrelevant emails3": {
+      "main": [
+        [
+          {
+            "node": "Save emails to Google Sheet4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate arrays of emails4": {
+      "main": [
+        [
+          {
+            "node": "Split out into default data structure3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split In Batches1": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Serper Google Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e263ab03-9643-4ff0-b86b-0e069e7815a5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ff184010ac1078b0ba4bf6038197d62c1d3661de02d25152f68c46add49345ff"
+  },
+  "id": "zAaRuVryuRVcMVr6",
+  "tags": []
+}
